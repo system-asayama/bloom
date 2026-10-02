@@ -26,8 +26,11 @@
       {% if store.phone %}
         <a class="header-tel" href="tel:{{ store.phone|tel }}">TEL {{ store.phone }}</a>
       {% endif %}
+      <button type="button" class="menu-toggle" aria-controls="global-nav" aria-expanded="false" aria-label="メニューを開く">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <nav class="global-nav">
+    <nav class="global-nav" id="global-nav">
       {% for endpoint, en, ja in nav %}
         <a href="{{ url_for(endpoint) }}" class="{{ 'active' if request.endpoint == endpoint }}">
           <span class="en">{{ en }}</span><span class="ja">{{ ja }}</span>
@@ -35,6 +38,9 @@
       {% endfor %}
       {% if is_admin %}
         <a href="{{ url_for('admin_posts') }}"><span class="en">ADMIN</span><span class="ja">管理画面</span></a>
+      {% endif %}
+      {% if store.phone %}
+        <a class="menu-tel btn" href="tel:{{ store.phone|tel }}">お電話 {{ store.phone }}</a>
       {% endif %}
     </nav>
   </header>
@@ -70,5 +76,21 @@
     <p class="notice">20歳未満の方の飲酒は法律で禁止されています。</p>
     <p class="copy">&copy; {{ site_name }}</p>
   </footer>
+  <script>
+    (function () {
+      var button = document.querySelector('.menu-toggle');
+      var nav = document.getElementById('global-nav');
+      function setOpen(open) {
+        document.body.classList.toggle('menu-open', open);
+        button.setAttribute('aria-expanded', String(open));
+        button.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+      }
+      button.addEventListener('click', function () {
+        setOpen(!document.body.classList.contains('menu-open'));
+      });
+      nav.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+    })();
+  </script>
 </body>
 </html>
