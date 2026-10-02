@@ -27,7 +27,8 @@
         <a class="header-tel" href="tel:{{ store.phone|tel }}">TEL {{ store.phone }}</a>
       {% endif %}
       <button type="button" class="menu-toggle" aria-controls="global-nav" aria-expanded="false" aria-label="メニューを開く">
-        <span></span><span></span><span></span>
+        <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="menu-label" aria-hidden="true"><span class="when-closed">MENU</span><span class="when-open">CLOSE</span></span>
       </button>
     </div>
     <nav class="global-nav" id="global-nav">
