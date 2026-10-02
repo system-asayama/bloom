@@ -61,14 +61,18 @@ img { max-width: 100%; display: block; }
   .site-header { backdrop-filter: none; background: var(--bg); }
   .header-tel { display: none; }
   .menu-toggle {
-    display: flex; flex-direction: column; justify-content: center; gap: 6px;
-    width: 44px; height: 44px; padding: 10px; background: none; border: 1px solid var(--gold-soft);
-    position: relative; z-index: 30;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    min-width: 60px; height: 52px; padding: 6px 8px; background: none; border: 1px solid var(--gold-soft);
+    position: relative; z-index: 30; color: var(--gold); letter-spacing: .12em;
   }
-  .menu-toggle span { display: block; height: 1px; background: var(--gold); transition: transform .3s, opacity .3s; }
-  .menu-open .menu-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .menu-open .menu-toggle span:nth-child(2) { opacity: 0; }
-  .menu-open .menu-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .bars { display: flex; flex-direction: column; gap: 6px; width: 26px; }
+  .bars i { display: block; height: 1px; background: var(--gold); transition: transform .3s, opacity .3s; }
+  .menu-label { font-size: .65rem; line-height: 1; }
+  .menu-label .when-open, .menu-open .menu-label .when-closed { display: none; }
+  .menu-open .menu-label .when-open { display: inline; }
+  .menu-open .bars i:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .menu-open .bars i:nth-child(2) { opacity: 0; }
+  .menu-open .bars i:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .global-nav {
     position: fixed; inset: 0; z-index: 20;
     flex-direction: column; justify-content: center; align-items: stretch; gap: 0;
