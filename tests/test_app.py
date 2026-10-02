@@ -126,3 +126,101 @@ def test_generated_admin_password_and_persistent_secret(tmp_path, capsys, monkey
         token = csrf(c)
         c.post("/admin/login", data={"csrf_token": token, "username": "admin", "password": password})
         assert c.get("/admin").status_code == 200
+
+
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
+
+
+def test_public_pages_render_when_empty(client):
+    for path in ["/", "/system", "/cast", "/gallery", "/access", "/recruit", "/blog"]:
+        assert client.get(path).status_code == 200, path
+
+
+def test_store_info_shown_on_site(client):
+    login(client)
+    token = csrf(client, "/admin/store")
+    client.post("/admin/store", data={
+        "csrf_token": token, "store_name": "祇園", "phone": "086-000-0000",
+        "address": "岡山市北区1-2-3", "recruit_text": "キャスト募集中",
+    })
+    top = client.get("/").get_data(as_text=True)
+    assert "祇園" in top and 'href="tel:0860000000"' in top
+    assert "maps.google.com" in client.get("/access").get_data(as_text=True)
+    assert "キャスト募集中" in client.get("/recruit").get_data(as_text=True)
+
+
+def test_store_rejects_javascript_url(client):
+    login(client)
+    token = csrf(client, "/admin/store")
+    r = client.post("/admin/store", data={"csrf_token": token, "line_url": "javascript:alert(1)"})
+    assert "https://" in r.get_data(as_text=True)
+    assert "javascript:alert" not in client.get("/").get_data(as_text=True)
+
+
+def test_prices_grouped_on_system_page(client):
+    login(client)
+    token = csrf(client, "/admin/prices/new")
+    client.post("/admin/prices/new", data={"csrf_token": token, "category": "セット料金", "name": "60分", "price": "3,000円", "sort_order": "1"})
+    client.post("/admin/prices/new", data={"csrf_token": token, "category": "ボトル", "name": "焼酎", "price": "5,000円", "sort_order": "2"})
+    html = client.get("/system").get_data(as_text=True)
+    assert html.index("セット料金") < html.index("60分") < html.index("ボトル") < html.index("焼酎")
+
+
+def test_cast_with_photo(client):
+    import io
+    login(client)
+    token = csrf(client, "/admin/casts/new")
+    client.post("/admin/casts/new", data={
+        "csrf_token": token, "name": "さくら", "visible": "1",
+        "photo": (io.BytesIO(PNG), "a.png"),
+    }, content_type="multipart/form-data")
+    client.post("/admin/casts/new", data={"csrf_token": token, "name": "かくれ"})
+    from app import Cast
+    with client.app.app_context():
+        sakura = Cast.query.filter_by(name="さくら").one()
+        hidden = Cast.query.filter_by(name="かくれ").one()
+        sid, hid, image_id = sakura.id, hidden.id, sakura.image_id
+    img = client.get(f"/images/{image_id}")
+    assert img.status_code == 200 and img.mimetype == "image/png"
+
+    client.post("/admin/logout", data={"csrf_token": token})
+    listing = client.get("/cast").get_data(as_text=True)
+    assert "さくら" in listing and "かくれ" not in listing
+    assert client.get(f"/cast/{hid}").status_code == 404
+    assert client.get(f"/cast/{sid}").status_code == 200
+
+
+def test_non_image_upload_rejected(client):
+    import io
+    login(client)
+    token = csrf(client, "/admin/gallery")
+    r = client.post("/admin/gallery", data={
+        "csrf_token": token, "photos": (io.BytesIO(b"<svg onload=alert(1)>"), "x.svg"),
+    }, content_type="multipart/form-data", follow_redirects=True)
+    assert "画像を選んでください" in r.get_data(as_text=True)
+    from app import GalleryPhoto, Image
+    with client.app.app_context():
+        assert GalleryPhoto.query.count() == 0 and Image.query.count() == 0
+
+
+def test_gallery_upload_and_delete(client):
+    import io
+    login(client)
+    token = csrf(client, "/admin/gallery")
+    client.post("/admin/gallery", data={
+        "csrf_token": token, "caption": "カウンター",
+        "photos": [(io.BytesIO(PNG), "a.png"), (io.BytesIO(PNG), "b.png")],
+    }, content_type="multipart/form-data")
+    from app import GalleryPhoto, Image
+    with client.app.app_context():
+        assert GalleryPhoto.query.count() == 2
+        pid = GalleryPhoto.query.first().id
+    assert "カウンター" in client.get("/gallery").get_data(as_text=True)
+    client.post(f"/admin/gallery/{pid}/delete", data={"csrf_token": token})
+    with client.app.app_context():
+        assert GalleryPhoto.query.count() == 1 and Image.query.count() == 1
+
+
+def test_admin_pages_require_login(client):
+    for path in ["/admin/store", "/admin/prices", "/admin/casts", "/admin/gallery"]:
+        assert client.get(path).status_code == 302, path

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}ギャラリー | 管理画面{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<h1>ギャラリー</h1>
+<form method="post" class="form card" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>写真を追加(複数選択可、1枚5MBまで)<input type="file" name="photos" accept="image/*" multiple required></label>
+  <label>説明(任意)<input name="caption" maxlength="200"></label>
+  <button type="submit">アップロード</button>
+</form>
+<div class="admin-gallery">
+  {% for photo in photos %}
+    <div class="card">
+      <img src="{{ url_for('image', image_id=photo.image_id) }}" alt="">
+      <form method="post" action="{{ url_for('gallery_edit', photo_id=photo.id) }}" class="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>説明<input name="caption" value="{{ photo.caption }}" maxlength="200"></label>
+        <label>表示順<input type="number" name="sort_order" value="{{ photo.sort_order }}"></label>
+        <button type="submit">更新</button>
+      </form>
+      <form method="post" action="{{ url_for('gallery_delete', photo_id=photo.id) }}" onsubmit="return confirm('削除しますか?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="link danger">削除</button>
+      </form>
+    </div>
+  {% else %}
+    <p class="muted">まだ写真がありません。</p>
+  {% endfor %}
+</div>
+{% endblock %}

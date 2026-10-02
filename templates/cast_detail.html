@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ cast.name }} | {{ site_name }}{% endblock %}
+{% block content %}
+{% with en='CAST', ja='キャスト' %}{% include "_page_title.html" %}{% endwith %}
+{% if not cast.visible %}<p class="badge">非公開</p>{% endif %}
+<div class="cast-detail">
+  <div class="cast-photo large">
+    {% if cast.image_id %}
+      <img src="{{ url_for('image', image_id=cast.image_id) }}" alt="{{ cast.name }}">
+    {% else %}
+      <span class="no-photo">{{ cast.name[:1] }}</span>
+    {% endif %}
+  </div>
+  <div class="cast-info">
+    <h2 class="cast-name">{{ cast.name }}</h2>
+    {% if cast.catchcopy %}<p class="cast-catch">{{ cast.catchcopy }}</p>{% endif %}
+    {% if cast.profile %}<div class="profile">{{ cast.profile|nl2br }}</div>{% endif %}
+    {% if cast.message %}
+      <h3>メッセージ</h3>
+      <p>{{ cast.message|nl2br }}</p>
+    {% endif %}
+  </div>
+</div>
+<p class="more"><a class="btn-outline" href="{{ url_for('cast_list') }}">キャスト一覧へ</a></p>
+{% endblock %}

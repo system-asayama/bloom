@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}キャストの編集 | 管理画面{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<h1>{{ 'キャストの追加' if is_new else 'キャストの編集' }}</h1>
+<form method="post" class="form" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>名前<input name="name" value="{{ cast.name }}" maxlength="80" required></label>
+  <label>ひとこと(一覧に表示)<input name="catchcopy" value="{{ cast.catchcopy }}" maxlength="200"></label>
+  <label>プロフィール(誕生日・血液型・趣味など、自由に)<textarea name="profile" rows="6">{{ cast.profile }}</textarea></label>
+  <label>メッセージ<textarea name="message" rows="4">{{ cast.message }}</textarea></label>
+  <div>
+    {% if cast.image_id %}
+      <img class="thumb large" src="{{ url_for('image', image_id=cast.image_id) }}" alt="">
+      <label class="check"><input type="checkbox" name="remove_photo" value="1"> 写真を削除する</label>
+    {% endif %}
+    <label>写真{{ 'を差し替える' if cast.image_id }}(JPEG / PNG / GIF / WebP、5MBまで)<input type="file" name="photo" accept="image/*"></label>
+  </div>
+  <label>表示順(小さい順)<input type="number" name="sort_order" value="{{ cast.sort_order or 0 }}"></label>
+  <label class="check"><input type="checkbox" name="visible" value="1" {% if cast.visible %}checked{% endif %}> サイトに表示する</label>
+  <button type="submit">保存</button>
+</form>
+{% endblock %}

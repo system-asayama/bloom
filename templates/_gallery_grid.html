@@ -1,0 +1,10 @@
+<div class="gallery-grid">
+  {% for photo in photos %}
+    <figure>
+      <a href="{{ url_for('image', image_id=photo.image_id) }}" target="_blank" rel="noopener">
+        <img src="{{ url_for('image', image_id=photo.image_id) }}" alt="{{ photo.caption or '店内写真' }}" loading="lazy">
+      </a>
+      {% if photo.caption %}<figcaption>{{ photo.caption }}</figcaption>{% endif %}
+    </figure>
+  {% endfor %}
+</div>

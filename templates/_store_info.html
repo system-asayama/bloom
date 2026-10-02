@@ -1,0 +1,10 @@
+<dl class="info-table">
+  {% if store.address %}<div><dt>住所</dt><dd>{{ store.address }}</dd></div>{% endif %}
+  {% if store.phone %}<div><dt>電話番号</dt><dd><a href="tel:{{ store.phone|tel }}">{{ store.phone }}</a></dd></div>{% endif %}
+  {% if store.hours %}<div><dt>営業時間</dt><dd>{{ store.hours|nl2br }}</dd></div>{% endif %}
+  {% if store.holiday %}<div><dt>定休日</dt><dd>{{ store.holiday }}</dd></div>{% endif %}
+  {% if store.access %}<div><dt>アクセス</dt><dd>{{ store.access|nl2br }}</dd></div>{% endif %}
+</dl>
+{% if store.address %}
+  <div class="map"><iframe src="{{ store.address|map_embed }}" loading="lazy" title="地図" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+{% endif %}

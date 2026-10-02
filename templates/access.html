@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}アクセス | {{ site_name }}{% endblock %}
+{% block content %}
+{% with en='ACCESS', ja='店舗情報・アクセス' %}{% include "_page_title.html" %}{% endwith %}
+{% if store.address or store.phone or store.hours %}
+  {% include "_store_info.html" %}
+{% else %}
+  <p class="muted center">店舗情報は準備中です。</p>
+{% endif %}
+{% endblock %}

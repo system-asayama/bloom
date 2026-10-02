@@ -2,7 +2,7 @@
 {% block title %}管理画面 | {{ site_name }}{% endblock %}
 {% block content %}
 {% include "admin/_nav.html" %}
-<h1>記事一覧</h1>
+<div class="admin-head"><h1>ブログ</h1><a class="btn" href="{{ url_for('post_new') }}">新規作成</a></div>
 <table class="table">
   <thead><tr><th>日付</th><th>タイトル</th><th>状態</th><th></th></tr></thead>
   <tbody>

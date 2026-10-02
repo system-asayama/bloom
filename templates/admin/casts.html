@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}キャスト | 管理画面{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<div class="admin-head"><h1>キャスト</h1><a class="btn" href="{{ url_for('cast_form') }}">追加</a></div>
+<table class="table">
+  <thead><tr><th>順</th><th>写真</th><th>名前</th><th>状態</th><th></th></tr></thead>
+  <tbody>
+  {% for cast in casts %}
+    <tr>
+      <td>{{ cast.sort_order }}</td>
+      <td>{% if cast.image_id %}<img class="thumb" src="{{ url_for('image', image_id=cast.image_id) }}" alt="">{% endif %}</td>
+      <td><a href="{{ url_for('cast_detail', cast_id=cast.id) }}">{{ cast.name }}</a></td>
+      <td>{% if cast.visible %}公開{% else %}<span class="badge">非公開</span>{% endif %}</td>
+      <td class="actions">
+        <a href="{{ url_for('cast_form', cast_id=cast.id) }}">編集</a>
+        <form method="post" action="{{ url_for('cast_delete', cast_id=cast.id) }}" class="inline" onsubmit="return confirm('削除しますか?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="link danger">削除</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">まだキャストがいません。「追加」から登録してください。</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}店舗情報 | 管理画面{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<h1>店舗情報</h1>
+<p class="muted">ここで入力した内容がトップページ・アクセス・料金・求人ページに表示されます。空欄の項目は表示されません。</p>
+<form method="post" class="form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  {% for key, label, multiline in fields %}
+    <label>{{ label }}
+      {% if multiline %}
+        <textarea name="{{ key }}" rows="4">{{ values[key] }}</textarea>
+      {% else %}
+        <input name="{{ key }}" value="{{ values[key] }}">
+      {% endif %}
+    </label>
+  {% endfor %}
+  <button type="submit">保存</button>
+</form>
+{% endblock %}
