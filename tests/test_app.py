@@ -110,3 +110,19 @@ def test_open_redirect_blocked(client):
         "csrf_token": token, "username": "mama", "password": "secret-pass",
     })
     assert r.headers["Location"] == "/admin"
+
+
+def test_generated_admin_password_and_persistent_secret(tmp_path, capsys, monkeypatch):
+    monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
+    monkeypatch.delenv("SECRET_KEY", raising=False)
+    uri = f"sqlite:///{tmp_path / 'x.db'}"
+    app1 = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": uri})
+    out = capsys.readouterr().out
+    password = re.search(r"パスワード=(\S+)", out).group(1)
+    app2 = create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": uri})
+    assert app1.config["SECRET_KEY"] == app2.config["SECRET_KEY"]
+    assert "初期管理者" not in capsys.readouterr().out
+    with app2.test_client() as c:
+        token = csrf(c)
+        c.post("/admin/login", data={"csrf_token": token, "username": "admin", "password": password})
+        assert c.get("/admin").status_code == 200

@@ -15,6 +15,7 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import Markup, escape
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 db = SQLAlchemy()
@@ -32,6 +33,11 @@ class Admin(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+class Setting(db.Model):
+    key = db.Column(db.String(80), primary_key=True)
+    value = db.Column(db.Text, nullable=False)
+
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -46,7 +52,7 @@ class Post(db.Model):
 def create_app(test_config=None):
     app = Flask(__name__)
     app.config.update(
-        SECRET_KEY=os.environ.get("SECRET_KEY") or secrets.token_hex(32),
+        SECRET_KEY=os.environ.get("SECRET_KEY"),
         SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL", "sqlite:///bloom.db"),
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE") == "1",
@@ -58,25 +64,51 @@ def create_app(test_config=None):
     db.init_app(app)
     with app.app_context():
         db.create_all()
+        if not app.config["SECRET_KEY"]:
+            app.config["SECRET_KEY"] = _stored_secret_key()
         _ensure_admin(app)
 
     register_routes(app)
     return app
 
 
+def _stored_secret_key():
+    """SECRET_KEY 未設定時は DB に保存した鍵を使い、再起動でログインが切れないようにする。"""
+    setting = db.session.get(Setting, "secret_key")
+    if not setting:
+        setting = Setting(key="secret_key", value=secrets.token_hex(32))
+        db.session.add(setting)
+        try:
+            db.session.commit()
+        except IntegrityError:  # 別ワーカーが先に作成した
+            db.session.rollback()
+            setting = db.session.get(Setting, "secret_key")
+    return setting.value
+
+
 def _ensure_admin(app):
-    """管理者がまだいなければ、環境変数の ADMIN_USERNAME / ADMIN_PASSWORD で作成する。"""
+    """管理者がまだいなければ作成する。
+
+    ADMIN_PASSWORD 未設定時はランダムなパスワードを生成し、ログに出力する。
+    """
     if Admin.query.first():
         return
     username = app.config.get("ADMIN_USERNAME") or os.environ.get("ADMIN_USERNAME", "admin")
     password = app.config.get("ADMIN_PASSWORD") or os.environ.get("ADMIN_PASSWORD")
     if not password:
-        app.logger.warning("ADMIN_PASSWORD が未設定のため管理者を作成しませんでした")
-        return
+        password = secrets.token_urlsafe(12)
+        print(
+            f"[bloom] 初期管理者を作成しました: ユーザー名={username} パスワード={password}"
+            " (ログイン後に必ず変更してください)",
+            flush=True,
+        )
     admin = Admin(username=username)
     admin.set_password(password)
     db.session.add(admin)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:  # 別ワーカーが先に作成した
+        db.session.rollback()
 
 
 def login_required(view):

@@ -14,12 +14,18 @@
 ## 起動
 
 ```sh
-cp .env.example .env   # SECRET_KEY と ADMIN_PASSWORD を必ず書き換える
+cp .env.example .env   # 任意。SECRET_KEY と ADMIN_PASSWORD を書き換える
 docker compose up --build
 ```
 
 http://localhost:8080/admin/login から `.env` の `ADMIN_USERNAME` / `ADMIN_PASSWORD` でログインする。
 管理者は DB に管理者が一人もいない初回起動時にだけ作成される。以降のパスワード変更は管理画面から行う。
+
+`.env` が無い場合(自動デプロイなど)は初期パスワードを自動生成し、コンテナのログに出力する:
+
+```sh
+docker compose logs web | grep 初期管理者
+```
 
 ## ローカル開発(Docker なし)
 
