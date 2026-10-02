@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ '新規作成' if is_new else '記事の編集' }} | {{ site_name }}{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<h1>{{ '新規作成' if is_new else '記事の編集' }}</h1>
+<form method="post" class="form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>タイトル<input name="title" value="{{ post.title }}" maxlength="200" required></label>
+  <label>本文<textarea name="body" rows="14">{{ post.body }}</textarea></label>
+  <label class="check"><input type="checkbox" name="published" value="1" {% if post.published %}checked{% endif %}> 公開する(チェックしないと下書き)</label>
+  <button type="submit">保存</button>
+</form>
+{% endblock %}

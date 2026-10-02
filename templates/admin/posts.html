@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}管理画面 | {{ site_name }}{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<h1>記事一覧</h1>
+<table class="table">
+  <thead><tr><th>日付</th><th>タイトル</th><th>状態</th><th></th></tr></thead>
+  <tbody>
+  {% for post in posts %}
+    <tr>
+      <td>{{ post.created_at.strftime('%Y.%m.%d') }}</td>
+      <td><a href="{{ url_for('blog_detail', post_id=post.id) }}">{{ post.title }}</a></td>
+      <td>{% if post.published %}公開{% else %}<span class="badge">下書き</span>{% endif %}</td>
+      <td class="actions">
+        <a href="{{ url_for('post_edit', post_id=post.id) }}">編集</a>
+        <form method="post" action="{{ url_for('post_delete', post_id=post.id) }}" class="inline"
+              onsubmit="return confirm('この記事を削除しますか?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="link danger">削除</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="muted">まだ記事はありません。</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
