@@ -1,0 +1,13 @@
+{% for category, items in price_groups.items() %}
+  <div class="price-group">
+    <h3>{{ category }}</h3>
+    <dl class="price-list">
+      {% for item in items %}
+        <div class="price-row">
+          <dt>{{ item.name }}{% if item.note %}<small>{{ item.note }}</small>{% endif %}</dt>
+          <dd>{{ item.price }}</dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </div>
+{% endfor %}

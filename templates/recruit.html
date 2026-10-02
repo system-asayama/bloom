@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}求人情報 | {{ site_name }}{% endblock %}
+{% block content %}
+{% with en='RECRUIT', ja='求人情報' %}{% include "_page_title.html" %}{% endwith %}
+{% if store.recruit_text %}
+  <div class="recruit-body">{{ store.recruit_text|nl2br }}</div>
+  {% if store.recruit_contact %}
+    <div class="note-box center">
+      <p>お問い合わせ</p>
+      <p class="big">{{ store.recruit_contact }}</p>
+    </div>
+  {% endif %}
+{% else %}
+  <p class="muted center">現在募集はありません。</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}料金システム | {{ site_name }}{% endblock %}
+{% block content %}
+{% with en='SYSTEM', ja='料金システム' %}{% include "_page_title.html" %}{% endwith %}
+{% if price_groups %}
+  {% include "_price_table.html" %}
+{% else %}
+  <p class="muted center">料金表は準備中です。</p>
+{% endif %}
+{% if store.system_note %}<div class="note-box">{{ store.system_note|nl2br }}</div>{% endif %}
+{% endblock %}

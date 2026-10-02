@@ -1,19 +1,67 @@
 {% extends "base.html" %}
-{% block content %}
+{% block hero %}
 <section class="hero">
-  <h1>{{ site_name }}</h1>
-  <p>ようこそ。お気軽にお立ち寄りください。</p>
+  <div class="hero-inner">
+    <p class="hero-name">{{ site_name }}</p>
+    {% if store.catchcopy %}<p class="hero-catch">{{ store.catchcopy }}</p>{% endif %}
+    {% if store.phone %}<a class="btn" href="tel:{{ store.phone|tel }}">お電話でのご予約 {{ store.phone }}</a>{% endif %}
+  </div>
+</section>
+{% endblock %}
+{% block content %}
+{% if store.intro %}
+<section class="section intro">
+  {% with en='CONCEPT', ja='お店について' %}{% include "_heading.html" %}{% endwith %}
+  <p>{{ store.intro|nl2br }}</p>
+</section>
+{% endif %}
+
+<section class="section">
+  {% with en='NEWS', ja='お知らせ・ブログ' %}{% include "_heading.html" %}{% endwith %}
+  <div class="news-list">
+    {% for post in posts %}{% include "_post_card.html" %}{% else %}<p class="muted center">まだ記事はありません。</p>{% endfor %}
+  </div>
+  {% if posts %}<p class="more"><a class="btn-outline" href="{{ url_for('blog_list') }}">ブログ一覧</a></p>{% endif %}
 </section>
 
-<section>
-  <h2>新着ブログ</h2>
-  {% for post in posts %}
-    {% include "_post_card.html" %}
+{% if casts %}
+<section class="section">
+  {% with en='CAST', ja='キャスト' %}{% include "_heading.html" %}{% endwith %}
+  <div class="cast-grid">{% for cast in casts %}{% include "_cast_card.html" %}{% endfor %}</div>
+  <p class="more"><a class="btn-outline" href="{{ url_for('cast_list') }}">キャスト一覧</a></p>
+</section>
+{% endif %}
+
+{% if price_groups %}
+<section class="section">
+  {% with en='SYSTEM', ja='料金システム' %}{% include "_heading.html" %}{% endwith %}
+  {% include "_price_table.html" %}
+  <p class="more"><a class="btn-outline" href="{{ url_for('system') }}">料金の詳細</a></p>
+</section>
+{% endif %}
+
+{% if photos %}
+<section class="section">
+  {% with en='GALLERY', ja='ギャラリー' %}{% include "_heading.html" %}{% endwith %}
+  {% include "_gallery_grid.html" %}
+  <p class="more"><a class="btn-outline" href="{{ url_for('gallery') }}">もっと見る</a></p>
+</section>
+{% endif %}
+
+<section class="section">
+  {% with en='ACCESS', ja='店舗情報' %}{% include "_heading.html" %}{% endwith %}
+  {% if store.address or store.phone or store.hours %}
+    {% include "_store_info.html" %}
   {% else %}
-    <p class="muted">まだ記事はありません。</p>
-  {% endfor %}
-  {% if posts %}
-    <p><a href="{{ url_for('blog_list') }}">ブログ一覧へ &rarr;</a></p>
+    <p class="muted center">店舗情報は準備中です。</p>
   {% endif %}
 </section>
+
+{% if store.recruit_text %}
+<section class="section recruit-banner">
+  <p class="en">RECRUIT</p>
+  <p>一緒に働く仲間を募集しています</p>
+  <a class="btn" href="{{ url_for('recruit') }}">求人情報を見る</a>
+</section>
+{% endif %}
 {% endblock %}

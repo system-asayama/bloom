@@ -1,0 +1,11 @@
+<a class="cast-card" href="{{ url_for('cast_detail', cast_id=cast.id) }}">
+  <div class="cast-photo">
+    {% if cast.image_id %}
+      <img src="{{ url_for('image', image_id=cast.image_id) }}" alt="{{ cast.name }}" loading="lazy">
+    {% else %}
+      <span class="no-photo">{{ cast.name[:1] }}</span>
+    {% endif %}
+  </div>
+  <p class="cast-name">{{ cast.name }}</p>
+  {% if cast.catchcopy %}<p class="cast-catch">{{ cast.catchcopy }}</p>{% endif %}
+</a>

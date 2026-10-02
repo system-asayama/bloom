@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}ギャラリー | {{ site_name }}{% endblock %}
+{% block content %}
+{% with en='GALLERY', ja='ギャラリー' %}{% include "_page_title.html" %}{% endwith %}
+{% if photos %}{% include "_gallery_grid.html" %}{% else %}<p class="muted center">準備中です。</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}キャスト | {{ site_name }}{% endblock %}
+{% block content %}
+{% with en='CAST', ja='キャスト' %}{% include "_page_title.html" %}{% endwith %}
+<div class="cast-grid">
+  {% for cast in casts %}{% include "_cast_card.html" %}{% else %}<p class="muted center">準備中です。</p>{% endfor %}
+</div>
+{% endblock %}

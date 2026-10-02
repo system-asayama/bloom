@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}料金 | 管理画面{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<div class="admin-head"><h1>料金</h1><a class="btn" href="{{ url_for('price_form') }}">追加</a></div>
+<table class="table">
+  <thead><tr><th>順</th><th>分類</th><th>項目</th><th>料金</th><th></th></tr></thead>
+  <tbody>
+  {% for item in items %}
+    <tr>
+      <td>{{ item.sort_order }}</td>
+      <td>{{ item.category }}</td>
+      <td>{{ item.name }}{% if item.note %}<br><small class="muted">{{ item.note }}</small>{% endif %}</td>
+      <td>{{ item.price }}</td>
+      <td class="actions">
+        <a href="{{ url_for('price_form', item_id=item.id) }}">編集</a>
+        <form method="post" action="{{ url_for('price_delete', item_id=item.id) }}" class="inline" onsubmit="return confirm('削除しますか?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="link danger">削除</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="muted">まだ料金がありません。「追加」から登録してください。</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

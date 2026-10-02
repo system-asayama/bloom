@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% block title %}ブログ | {{ site_name }}{% endblock %}
 {% block content %}
-<h1>ブログ</h1>
-{% for post in posts %}
-  {% include "_post_card.html" %}
-{% else %}
-  <p class="muted">まだ記事はありません。</p>
-{% endfor %}
+{% with en='BLOG', ja='お知らせ・ブログ' %}{% include "_page_title.html" %}{% endwith %}
+<div class="news-list">
+  {% for post in posts %}{% include "_post_card.html" %}{% else %}<p class="muted center">まだ記事はありません。</p>{% endfor %}
+</div>
 {% endblock %}

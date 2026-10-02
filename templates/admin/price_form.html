@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}料金の編集 | 管理画面{% endblock %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<h1>{{ '料金の編集' if item.id else '料金の追加' }}</h1>
+<form method="post" class="form narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label>分類(例: セット料金、ボトル、その他)
+    <input name="category" value="{{ item.category }}" list="categories" maxlength="80">
+    <datalist id="categories">{% for c in categories %}<option value="{{ c }}">{% endfor %}</datalist>
+  </label>
+  <label>項目名(例: 60分)<input name="name" value="{{ item.name }}" maxlength="120" required></label>
+  <label>料金(例: 3,000円)<input name="price" value="{{ item.price }}" maxlength="80"></label>
+  <label>補足(任意)<input name="note" value="{{ item.note }}" maxlength="200"></label>
+  <label>表示順(小さい順)<input type="number" name="sort_order" value="{{ item.sort_order or 0 }}"></label>
+  <button type="submit">保存</button>
+</form>
+{% endblock %}

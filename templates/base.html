@@ -4,19 +4,43 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  {% if store.catchcopy %}<meta name="description" content="{{ site_name }} | {{ store.catchcopy }}">{% endif %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  {% set nav = [
+    ('index', 'TOP', 'トップ'),
+    ('system', 'SYSTEM', '料金'),
+    ('cast_list', 'CAST', 'キャスト'),
+    ('gallery', 'GALLERY', 'ギャラリー'),
+    ('blog_list', 'BLOG', 'ブログ'),
+    ('access', 'ACCESS', 'アクセス'),
+    ('recruit', 'RECRUIT', '求人'),
+  ] %}
   <header class="site-header">
-    <a class="logo" href="{{ url_for('index') }}">{{ site_name }}</a>
-    <nav>
-      <a href="{{ url_for('index') }}">トップ</a>
-      <a href="{{ url_for('blog_list') }}">ブログ</a>
+    <div class="header-inner">
+      <a class="logo" href="{{ url_for('index') }}">{{ site_name }}</a>
+      {% if store.phone %}
+        <a class="header-tel" href="tel:{{ store.phone|tel }}">TEL {{ store.phone }}</a>
+      {% endif %}
+    </div>
+    <nav class="global-nav">
+      {% for endpoint, en, ja in nav %}
+        <a href="{{ url_for(endpoint) }}" class="{{ 'active' if request.endpoint == endpoint }}">
+          <span class="en">{{ en }}</span><span class="ja">{{ ja }}</span>
+        </a>
+      {% endfor %}
       {% if is_admin %}
-        <a href="{{ url_for('admin_posts') }}">管理画面</a>
+        <a href="{{ url_for('admin_posts') }}"><span class="en">ADMIN</span><span class="ja">管理画面</span></a>
       {% endif %}
     </nav>
   </header>
+
+  {% block hero %}{% endblock %}
+
   <main class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
@@ -25,6 +49,26 @@
     {% endwith %}
     {% block content %}{% endblock %}
   </main>
-  <footer class="site-footer">&copy; {{ site_name }}</footer>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <p class="footer-name">{{ site_name }}</p>
+        {% if store.address %}<p>{{ store.address }}</p>{% endif %}
+        {% if store.phone %}<p>TEL <a href="tel:{{ store.phone|tel }}">{{ store.phone }}</a></p>{% endif %}
+        {% if store.hours %}<p>営業時間 {{ store.hours|nl2br }}</p>{% endif %}
+        {% if store.holiday %}<p>定休日 {{ store.holiday }}</p>{% endif %}
+        <p class="sns">
+          {% if store.instagram_url %}<a href="{{ store.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+          {% if store.line_url %}<a href="{{ store.line_url }}" target="_blank" rel="noopener">LINE</a>{% endif %}
+        </p>
+      </div>
+      <nav class="footer-nav">
+        {% for endpoint, en, ja in nav %}<a href="{{ url_for(endpoint) }}">{{ ja }}</a>{% endfor %}
+      </nav>
+    </div>
+    <p class="notice">20歳未満の方の飲酒は法律で禁止されています。</p>
+    <p class="copy">&copy; {{ site_name }}</p>
+  </footer>
 </body>
 </html>
